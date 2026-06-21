@@ -1,83 +1,75 @@
-# Laravel Docker 開発環境
+# ブログシステム (Week7 課題)
 
-Docker を使って構築した Laravel の開発環境です。
-Nginx + PHP-FPM + MySQL + phpMyAdmin の構成で動作します。
+LaravelのMVCパターンで作成したブログシステムです。投稿のCRUD機能、カテゴリー分類、ページネーション、バリデーションを実装しています。
 
-## 必要なもの
+## 機能一覧
 
-- Docker Desktop
+- 投稿一覧表示（ページネーション付き、1ページ10件）
+- 投稿詳細表示
+- 投稿作成（タイトル・内容・カテゴリー）
+- 投稿編集
+- 投稿削除（確認ダイアログ付き）
+- バリデーション（必須チェック・文字数制限・カテゴリー存在チェック）
+- Bladeレイアウト継承による共通レイアウト
 
-## 構成
+## 使用技術
 
-| サービス   | 役割                   | ポート |
-| ---------- | ---------------------- | ------ |
-| nginx      | Web サーバー           | 80     |
-| app        | PHP-FPM（アプリ本体）  | -      |
-| db         | MySQL データベース     | 3306   |
-| phpmyadmin | データベース管理ツール | 8080   |
+- Laravel (PHP 8.2)
+- MySQL 8.0
+- Nginx
+- Docker / Docker Compose
+- Blade テンプレート
 
-## セットアップ手順
+## テーブル定義
 
-1. リポジトリをクローンする
+### categories テーブル
 
-```bash
-   git clone https://github.com/tomoki-omigawa-tech/techmeets-month2.git
-   cd techmeets-month2
-```
+| カラム名 | 型 | 説明 |
+|---|---|---|
+| id | bigint (PK) | カテゴリーID |
+| name | varchar(255) | カテゴリー名 |
+| created_at | timestamp | 作成日時 |
+| updated_at | timestamp | 更新日時 |
 
-2. `.env` ファイルを用意する
+### posts テーブル
 
-```bash
-   cp .env.example .env
-```
+| カラム名 | 型 | 説明 |
+|---|---|---|
+| id | bigint (PK) | 投稿ID |
+| title | varchar(255) | タイトル |
+| body | text | 本文 |
+| category_id | bigint (FK) | カテゴリーID（categories.id を参照） |
+| created_at | timestamp | 作成日時 |
+| updated_at | timestamp | 更新日時 |
 
-3. コンテナをビルド・起動する
+### リレーション
 
-```bash
-   docker compose up -d --build
-```
+- Post は1つの Category に属する（belongsTo）
+- Category は複数の Post を持つ（hasMany）
+- カテゴリー削除時、関連する投稿も削除される（cascade）
 
-4. アプリケーションキーを生成する
+## セットアップ
 
-```bash
-   docker compose exec app php artisan key:generate
-```
-
-5. マイグレーションを実行する
-
-```bash
-   docker compose exec app php artisan migrate
-```
-
-## アクセス先
-
-- アプリ: http://localhost
-- phpMyAdmin: http://localhost:8080 （ユーザー: `root` / パスワード: `secret`）
-
-## ポート番号の変更
-
-ポート番号は `.env` で管理しています。
-別のポートを使いたい場合は `.env` の以下の値を変更してください。
-
-```env
-NGINX_PORT=80
-DB_PORT_HOST=3306
-PMA_PORT=8080
-```
-
-## よく使うコマンド
-
-```bash
+\`\`\`bash
 # コンテナ起動
 docker compose up -d
 
-# コンテナ停止
-docker compose stop
-
-# コンテナの中に入る
-docker compose exec app bash
-
-# Artisan コマンド実行（例：マイグレーション）
+# マイグレーション
 docker compose exec app php artisan migrate
-```
 
+# テストデータ投入
+docker compose exec app php artisan db:seed
+\`\`\`
+
+ブラウザで http://localhost にアクセス
+
+## スクリーンショット
+
+### 投稿一覧
+（スクリーンショットをここに追加）
+
+### 投稿詳細
+（スクリーンショットをここに追加）
+
+### 投稿作成
+（スクリーンショットをここに追加）
