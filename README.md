@@ -80,3 +80,4 @@ docker compose exec app bash
 # Artisan コマンド実行（例：マイグレーション）
 docker compose exec app php artisan migrate
 ```
+
