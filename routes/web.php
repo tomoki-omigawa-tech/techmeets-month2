@@ -1,10 +1,29 @@
 <?php
 
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return redirect()->route('posts.index');
+    return view('welcome');
 });
 
-Route::resource('posts', PostController::class);
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// 投稿：作成・編集・削除はログインユーザーのみ（先に登録することで /posts/create が /posts/{post} より優先される）
+Route::middleware('auth')->group(function () {
+    Route::resource('posts', PostController::class)->except(['index', 'show']);
+});
+
+// 投稿：一覧・詳細は誰でも閲覧可能
+Route::resource('posts', PostController::class)->only(['index', 'show']);
+
+require __DIR__.'/auth.php';
