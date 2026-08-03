@@ -4,14 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Post;
+use App\Services\PostService;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
+    public function __construct(
+        protected PostService $postService
+    ) {}
+
     // 一覧表示（ページネーション付き）
     public function index()
     {
-        $posts = Post::with('category')->latest()->paginate(10);
+        $posts = $this->postService->getPosts();
         return view('posts.index', compact('posts'));
     }
 
@@ -37,9 +42,7 @@ class PostController extends Controller
             'category_id' => 'required|exists:categories,id',
         ]);
 
-        $validated['user_id'] = auth()->id();
-
-        Post::create($validated);
+        $this->postService->createPost($validated, auth()->id());
 
         return redirect()->route('posts.index')
             ->with('success', '投稿を作成しました。');
@@ -48,7 +51,7 @@ class PostController extends Controller
     // 編集フォーム表示
     public function edit(Post $post)
     {
-        abort_if($post->user_id !== auth()->id(), 403, 'この投稿を編集する権限がありません。');
+        $this->authorize('update', $post);
 
         $categories = Category::all();
         return view('posts.edit', compact('post', 'categories'));
@@ -57,7 +60,7 @@ class PostController extends Controller
     // 更新処理
     public function update(Request $request, Post $post)
     {
-        abort_if($post->user_id !== auth()->id(), 403, 'この投稿を編集する権限がありません。');
+        $this->authorize('update', $post);
 
         $validated = $request->validate([
             'title' => 'required|max:255',
@@ -65,7 +68,7 @@ class PostController extends Controller
             'category_id' => 'required|exists:categories,id',
         ]);
 
-        $post->update($validated);
+        $this->postService->updatePost($post, $validated);
 
         return redirect()->route('posts.show', $post)
             ->with('success', '投稿を更新しました。');
@@ -74,9 +77,9 @@ class PostController extends Controller
     // 削除処理
     public function destroy(Post $post)
     {
-        abort_if($post->user_id !== auth()->id(), 403, 'この投稿を削除する権限がありません。');
+        $this->authorize('delete', $post);
 
-        $post->delete();
+        $this->postService->deletePost($post);
 
         return redirect()->route('posts.index')
             ->with('success', '投稿を削除しました。');
