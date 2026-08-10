@@ -34,7 +34,10 @@ class PostController extends Controller
             'category_id' => ['required', 'exists:categories,id'],
         ]);
 
-        $post = $this->postService->createPost($validated, $request->user()->id);
+        // 練習課題のため、未認証時は仮のユーザーID（小見川朋輝: id=2）を使用
+        $userId = $request->user()?->id ?? 2;
+
+        $post = $this->postService->createPost($validated, $userId);
 
         return new PostResource($post);
     }

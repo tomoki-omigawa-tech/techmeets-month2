@@ -11,5 +11,5 @@ Route::get('/user', function (Request $request) {
 // 投稿一覧：誰でも閲覧可能
 Route::get('/posts', [PostController::class, 'index']);
 
-// 投稿作成：ログインユーザーのみ
-Route::middleware('auth:sanctum')->post('/posts', [PostController::class, 'store']);
+// 投稿作成：練習課題のため一時的に認証なしで許可（本番では auth:sanctum を有効化すること）
+Route::post('/posts', [PostController::class, 'store']);
