@@ -1,16 +1,45 @@
-# React + Vite
+# Week10 基本課題：LaravelアプリをAPI化してフロントエンドから表示する
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Week9で作成したLaravelブログアプリ（Service層・Eloquentリレーション実装済み）にAPIエンドポイントを追加し、Reactフロントエンドから呼び出して投稿一覧を表示しました。
 
-Currently, two official plugins are available:
+## 動かし方
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### バックエンド（Laravel）
 
-## React Compiler
+1. リポジトリのルート（`laravel-docker-app`）でDockerを起動します。
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+docker compose up -d
+```
 
-## Expanding the Oxlint configuration
+2. `http://localhost/api/posts` にアクセスすると、投稿一覧がJSON形式で取得できます。
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+### フロントエンド（React）
+
+1. `my-frontend` ディレクトリに移動します。
+
+```bash
+cd my-frontend
+```
+
+2. 依存パッケージをインストールします。
+
+```bash
+npm install
+```
+
+3. 開発サーバーを起動します。
+
+```bash
+npm run dev
+```
+
+4. ブラウザで `http://localhost:5173` にアクセスすると、投稿一覧が表示されます。
+
+## 実装内容
+
+- `routes/api.php` に `GET /api/posts` エンドポイントを追加
+- `Api\PostController` で `PostService` を利用し、投稿一覧を取得
+- `PostResource` でレスポンス形式（id, title, body, user, category, created_at, updated_at）を統一
+- React側では `axios` を使って `/api/posts` にGETリクエストを送信し、`PostList` → `PostItem` コンポーネントで一覧表示
+- `config/cors.php` を publish し、フロントエンドからのアクセスを許可
