@@ -91,3 +91,66 @@ Laravel Breeze を使用して、匿名だった投稿機能に認証・認可�
 SQLインジェクション・XSS・CSRF・認可バイパスについてテストを実施しました。詳細は [`docs/security-report.pdf`](docs/security-report.pdf) を参照してください。
 
 なお、認証機能を手動実装する練習として、別リポジトリ（`techmeets/month1/week8-bbs`）に PHP + PDO ベースの匿名掲示板も作成しています（練習課題1）。
+
+## Week 11: AWSへのデプロイとS3連携
+
+Week 9で完成したLaravel + Dockerアプリを、AWS EC2 + RDS + S3を使って本番相当の環境にデプロイしました。
+
+### インフラ構成
+
+- **EC2**: t3.micro (Ubuntu 24.04 LTS) — Webサーバー・アプリケーションサーバー
+- **RDS**: db.t4g.micro (MySQL 8.0) — マネージドデータベース、EC2からのみアクセス可能
+- **S3**: 画像アップロード用のオブジェクトストレージ
+- **Docker Compose**: nginx + PHP-FPM のコンテナ構成（DBはRDSに移行したためdbコンテナは削除）
+
+### セキュリティグループの設計
+
+#### EC2用セキュリティグループ
+
+| タイプ | プロトコル | ポート | ソース | 理由 |
+|---|---|---|---|---|
+| SSH | TCP | 22 | 自分のIPアドレス/32 | サーバー管理は自分だけが行うため、SSH接続元を自分のIPのみに制限。全世界に開放するとブルートフォース攻撃の標的になるリスクがある |
+| HTTP | TCP | 80 | 0.0.0.0/0 | Webアプリケーションとして誰でも閲覧できる必要があるため全許可。ログイン等の機密操作はアプリケーション側の認証・認可で保護している |
+
+#### RDS用セキュリティグループ
+
+| タイプ | プロトコル | ポート | ソース | 理由 |
+|---|---|---|---|---|
+| MySQL/Aurora | TCP | 3306 | EC2のセキュリティグループ | データベースはアプリケーションサーバー（EC2）からのみアクセスできればよく、インターネットから直接接続できる必要はない。RDS自体もパブリックアクセスを「なし」に設定し、二重に保護している |
+
+「すべて開放」「とりあえず許可」ではなく、実際にアクセスする必要がある送信元だけに絞ることで、不要な攻撃経路をなくす設計にしている。
+
+### S3画像アップロード機能（練習課題1）
+
+`/s3upload` にアクセスすると、画像をS3バケットにアップロードできる。
+
+- バケット名: `week11-uploads-omitomo2026`
+- IAMユーザーに `AmazonS3FullAccess` ポリシーをアタッチし、最小限のプログラムアクセスのみを許可
+- アップロードされた画像はバケットポリシーにより公開読み取り可能（`s3:GetObject` のみ許可、書き込みはIAM認証されたアプリケーションからのみ）
+
+### デプロイ手順
+
+```bash
+# EC2にSSH接続
+ssh -i week11-key.pem ubuntu@<EC2のIP>
+
+# リポジトリをclone
+git clone https://github.com/tomoki-omigawa-tech/techmeets-month2.git
+cd techmeets-month2
+
+# .envを設定（DB_HOSTにRDSエンドポイント、AWS_*にS3の認証情報を設定）
+cp .env.example .env
+nano .env
+
+# Composerで依存パッケージをインストール
+docker compose exec app composer install
+
+# コンテナ起動
+docker compose up -d
+
+# アプリケーションキー生成・マイグレーション
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate
+```
+
+ブラウザで `http://<EC2のIP>` にアクセスして動作確認。

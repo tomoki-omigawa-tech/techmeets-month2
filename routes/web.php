@@ -3,6 +3,7 @@
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\S3UploadController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -27,3 +28,6 @@ Route::middleware('auth')->group(function () {
 Route::resource('posts', PostController::class)->only(['index', 'show']);
 
 require __DIR__.'/auth.php';
+
+Route::get('/s3upload', [S3UploadController::class, 'index'])->name('s3upload.index');
+Route::post('/s3upload', [S3UploadController::class, 'store'])->name('s3upload.store');
