@@ -154,3 +154,14 @@ docker compose exec app php artisan migrate
 ```
 
 ブラウザで `http://<EC2のIP>` にアクセスして動作確認。
+
+## Week 13: 動作確認コマンド
+
+### `dig tomoki-omigawa.com +short`
+ドメインに設定されたAレコードの値（EC2のElastic IPアドレス `13.193.140.67`）が返ってくる。DNSが正しく名前解決できていることを確認できる。
+
+### `curl -I https://tomoki-omigawa.com`
+HTTPSでアクセスした際のレスポンスヘッダーを表示する。`HTTP/1.1 200 OK`が返り、HTTPS化とアプリの正常動作を確認できる。
+
+### `sudo certbot certificates`
+取得済みのSSL証明書の一覧と有効期限を表示する。証明書が有効で、自動更新の対象になっていることを確認できる。
