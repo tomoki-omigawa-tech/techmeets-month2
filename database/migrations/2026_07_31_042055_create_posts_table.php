@@ -14,6 +14,7 @@ return new class extends Migration
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->string('title');
             $table->text('body');
+            $table->unsignedInteger('likes_count')->default(0);
             $table->timestamps();
         });
     }

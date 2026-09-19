@@ -21,4 +21,10 @@ class Post extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    // いいね数を1増やす
+    public function incrementLikes(): void
+    {
+        $this->increment('likes_count');
+    }
 }
