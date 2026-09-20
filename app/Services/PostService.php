@@ -10,7 +10,8 @@ class PostService
 {
     public function __construct(
         protected PostRepository $postRepository
-    ) {}
+    ) {
+    }
 
     // 一覧取得
     public function getPosts(): LengthAwarePaginator

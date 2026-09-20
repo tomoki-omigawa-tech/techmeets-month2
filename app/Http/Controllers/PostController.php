@@ -11,7 +11,8 @@ class PostController extends Controller
 {
     public function __construct(
         protected PostService $postService
-    ) {}
+    ) {
+    }
 
     // 一覧表示（ページネーション付き）
     public function index()

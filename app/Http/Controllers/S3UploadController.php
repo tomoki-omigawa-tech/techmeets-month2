@@ -18,7 +18,7 @@ class S3UploadController extends Controller
             'image' => 'required|image|max:5120',
         ]);
 
-        $path = Storage::disk('s3')->put('images', $request->file('image'),);
+        $path = Storage::disk('s3')->put('images', $request->file('image'), );
         $url = Storage::disk('s3')->url($path);
 
         return redirect()->route('s3upload.index')->with('url', $url);

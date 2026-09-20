@@ -1,10 +1,12 @@
 <?php
+
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\S3UploadController;
-use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\StripeWebhookController;
+use Illuminate\Support\Facades\Route;
+
 Route::get('/', function () {
     return view('welcome');
 });
