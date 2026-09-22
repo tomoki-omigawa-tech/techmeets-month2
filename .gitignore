@@ -24,3 +24,5 @@ Homestead.yaml
 Thumbs.db
 phpinfo.txt
 .php-cs-fixer.cache
+deploy_key
+deploy_key.pub
