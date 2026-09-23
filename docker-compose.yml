@@ -11,6 +11,11 @@ services:
       - app
     networks:
       - app-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # PHP-FPM（アプリケーション）
   app:
@@ -23,6 +28,11 @@ services:
       - db
     networks:
       - app-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # MySQL（データベース）
   db:
@@ -38,6 +48,11 @@ services:
       - db-data:/var/lib/mysql
     networks:
       - app-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # phpMyAdmin
   phpmyadmin:
@@ -50,6 +65,11 @@ services:
       - db
     networks:
       - app-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 networks:
   app-network:

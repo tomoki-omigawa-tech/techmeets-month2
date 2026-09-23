@@ -1,0 +1,78 @@
+# ============================================
+# ステージ1: Composer依存関係のインストール
+# ============================================
+FROM composer:latest AS composer-builder
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
+
+# ============================================
+# ステージ2: フロントエンドビルド(Vite + Tailwind)
+# ============================================
+FROM node:20-alpine AS node-builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY resources ./resources
+COPY vite.config.js ./
+COPY public ./public
+RUN npm run build
+
+# ============================================
+# ステージ3: 最終イメージ(php-fpm-alpine)
+# ============================================
+FROM php:8.2-fpm-alpine
+
+# 非rootユーザーを作成
+RUN addgroup -g 1000 appuser && adduser -D -u 1000 -G appuser appuser
+
+# 実行時ライブラリ + ビルド用ライブラリを分けてインストールし、
+# 拡張ビルド後にビルド専用パッケージだけ削除してイメージを軽量化
+RUN apk add --no-cache \
+        libpng \
+        libjpeg-turbo \
+        freetype \
+        oniguruma \
+        libxml2 \
+        libzip \
+        mysql-client \
+        tzdata \
+    && apk add --no-cache --virtual .build-deps \
+        libpng-dev \
+        libjpeg-turbo-dev \
+        freetype-dev \
+        oniguruma-dev \
+        libxml2-dev \
+        libzip-dev \
+        $PHPIZE_DEPS \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) pdo_mysql mbstring exif pcntl bcmath gd zip \
+    && apk del .build-deps \
+    && rm -rf /var/cache/apk/*
+
+# タイムゾーンを日本時間に設定
+RUN ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
+
+WORKDIR /var/www/html
+
+# Composerの依存関係をビルドステージからコピー
+COPY --from=composer-builder /app/vendor ./vendor
+
+# ビルド済みフロントエンド資産をコピー
+COPY --from=node-builder /app/public/build ./public/build
+
+# アプリケーションコード本体をコピー(所有者をappuserに)
+COPY --chown=appuser:appuser . .
+
+# storage/bootstrap/cacheの権限設定
+RUN chown -R appuser:appuser storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
+
+# ヘルスチェック(php-fpmマスタープロセスの生存確認)
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
+    CMD pgrep -f "php-fpm: master process" || exit 1
+
+# 非rootユーザーで実行
+USER appuser
+
+CMD ["php-fpm"]

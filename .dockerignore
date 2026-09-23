@@ -1,0 +1,41 @@
+# Git関連
+.git
+.gitignore
+
+# 依存関係(ビルドステージ内でインストールするので不要)
+node_modules
+vendor
+
+# 環境設定(機密情報を含めない)
+.env
+.env.*
+
+# テスト・開発ツール
+tests
+.phpunit.cache
+.phpunit.result.cache
+phpunit.xml
+
+# ビルド成果物(ステージ内で生成するので不要)
+public/hot
+public/build
+
+# ログ・キャッシュ
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+
+# IDE
+.vscode
+.idea
+
+# その他
+README.md
+docker-compose.yml
+docker-compose.prod.yml
+Dockerfile.prod
+
+# SSH鍵(Git管理外だがDockerビルドコンテキストには含まれるため除外)
+deploy_key
+deploy_key.pub
