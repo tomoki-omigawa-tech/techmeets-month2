@@ -41,3 +41,19 @@
 変更内容:
 - `app/Repositories/PostRepository.php`: `Post::with('category')` → `Post::with(['category', 'user:id,name'])`
 - `resources/views/posts/index.blade.php`: 一覧に投稿者名を表示
+
+## インデックスによるクエリ改善
+
+投稿一覧の `Post::latest()->paginate(10)` が発行する `ORDER BY created_at DESC LIMIT 10` が、`created_at` にインデックスが無いため全件スキャン＋全件ソートになっていた。
+マイグレーションで `posts.created_at` にインデックスを追加して改善。
+
+対象SQL: `SELECT * FROM posts ORDER BY created_at DESC LIMIT 10`（ローカル・投稿3000件）
+
+| | type | key | rows | Extra | 実行時間（100回平均） |
+|---|---|---|---|---|---|
+| Before | ALL | NULL | 2999 | Using filesort | 5.76 ms |
+| After | index | posts_created_at_index | 10 | Backward index scan | 1.66 ms |
+
+- 読み取り行数が 2999 → 10 に減り、ソート処理（filesort）が不要になった
+- 実行時間は約71%短縮。データ件数が増えるほど差は大きくなる（Beforeは件数に比例して遅くなるが、Afterはほぼ一定）
+- 変更: `database/migrations/2026_09_24_000000_add_created_at_index_to_posts_table.php`
