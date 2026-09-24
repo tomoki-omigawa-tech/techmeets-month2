@@ -57,3 +57,27 @@
 - 読み取り行数が 2999 → 10 に減り、ソート処理（filesort）が不要になった
 - 実行時間は約71%短縮。データ件数が増えるほど差は大きくなる（Beforeは件数に比例して遅くなるが、Afterはほぼ一定）
 - 変更: `database/migrations/2026_09_24_000000_add_created_at_index_to_posts_table.php`
+
+## キャッシュ導入（Redis）
+
+投稿一覧の取得結果を `Cache::remember()` で10分間キャッシュし、ローカルのキャッシュドライバーをRedisに変更した。
+
+| | 時間 | クエリ数 |
+|---|---|---|
+| キャッシュなし（miss） | 906.11 ms | 4 |
+| キャッシュあり（hit） | 18.20 ms | 0 |
+
+- 計測: tinkerでキャッシュを空にしてから `PostService::getPosts()` を2回呼び出した（ローカル・投稿3000件）
+- missの時間には、初回のDB接続確立なども含まれる。hitではDBへのアクセスが完全に無くなっている
+
+### キャッシュの無効化
+
+- 投稿の作成・更新・削除、いいね時に、一覧キャッシュのバージョン番号を上げて古いキャッシュを参照しないようにした（`Post::flushIndexCache()`）
+- 教材の `Cache::tags()` はRedis・Memcached専用で、本番（`CACHE_STORE=database`）では例外になるため、どのドライバーでも動く「キーにバージョン番号を含める」方式を採用
+- 確認: 新規投稿を作成すると、一覧の先頭が 1446 → 3001（新規投稿のID）に切り替わった
+
+### 構成の変更
+- `docker-compose.yml`: `redis:7-alpine` サービスを追加（外部公開はせず、アプリからのみ接続）
+- `predis/predis` を追加（PHPイメージに phpredis 拡張が無いため）
+- ローカル `.env`: `CACHE_STORE=redis` / `REDIS_CLIENT=predis` / `REDIS_HOST=redis`
+- テストは `phpunit.xml` の `CACHE_STORE=array` のまま影響なし
