@@ -133,3 +133,21 @@ Viteのビルド成果物（`public/build/`）はファイル名にハッシュ�
 
 ### 補足
 - nginxの初期設定（`client_max_body_size` 1MB）により、アップロードできる画像は現状1MBまで
+
+### 本番デプロイ時のトラブルと対応（練習課題3）
+
+マージ後の自動デプロイで、アプリコンテナの再ビルドが完了せず、画像処理ライブラリも未インストールのまま（`Class "Intervention\Image\ImageManager" not found` で500エラー）になった。
+EC2（t3.micro）でのイメージビルドに時間がかかり、GitHub Actions（appleboy/ssh-action）のコマンド制限時間の初期値（10分）を超えたことが原因と考えられる。
+
+- 対応: SSHで手動で再ビルド・`composer install`・キャッシュ作成・nginx再起動を実行して復旧
+- 再発防止: `deploy.yml` に `command_timeout: 30m` を追加
+- 補足: アプリコンテナを作り直すとコンテナのIPが変わり、nginxが古い宛先を参照して502になることがあるため、デプロイの最後に nginx を再起動している
+
+### 本番デプロイ時のトラブルと対応（練習課題3）
+
+マージ後の自動デプロイで、アプリコンテナの再ビルドが完了せず、画像処理ライブラリも未インストールのまま（`Class "Intervention\Image\ImageManager" not found` で500エラー）になった。
+EC2（t3.micro）でのイメージビルドに時間がかかり、GitHub Actions（appleboy/ssh-action）のコマンド制限時間の初期値（10分）を超えたことが原因と考えられる。
+
+- 対応: SSHで手動で再ビルド・`composer install`・キャッシュ作成・nginx再起動を実行して復旧
+- 再発防止: `deploy.yml` に `command_timeout: 30m` を追加
+- 補足: アプリコンテナを作り直すとコンテナのIPが変わり、nginxが古い宛先を参照して502になることがあるため、デプロイの最後に nginx を再起動している
