@@ -10,7 +10,7 @@ class PostRepository
     // 一覧取得（カテゴリ込み・ページネーション）
     public function paginate(int $perPage = 10): LengthAwarePaginator
     {
-        return Post::with('category')->latest()->paginate($perPage);
+        return Post::with(['category', 'user:id,name'])->latest()->paginate($perPage);
     }
 
     // 新規作成

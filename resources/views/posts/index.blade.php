@@ -23,6 +23,7 @@
             @forelse ($posts as $post)
                 <div class="card bg-white p-4 mb-4 rounded shadow">
                     <span class="category-tag text-xs text-gray-500">{{ $post->category->name }}</span>
+                    <span class="author-name text-xs text-gray-500">投稿者: {{ $post->user->name }}</span>
                     <h3 class="text-lg font-semibold">
                         <a href="{{ route('posts.show', $post) }}" class="text-indigo-600 hover:underline">{{ $post->title }}</a>
                     </h3>
