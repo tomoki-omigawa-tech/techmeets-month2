@@ -108,3 +108,28 @@ Viteのビルド成果物（`public/build/`）はファイル名にハッシュ�
 ### 今後の改善候補
 - FCP 2.1 s の大半は、Mobile（低速回線シミュレーション）でのCSS・外部フォントの読み込み待ち。フォント（fonts.bunny.net）をセルフホストする、`preconnect` を見直すなどで改善が見込める
 - 練習課題3（WebP変換・CloudFront配信）は別PRで対応予定
+
+## 画像のWebP変換とCloudFront配信（練習課題3）
+
+`/s3upload` でアップロードされた画像を、横幅1600pxを上限に縮小してWebP（品質80）に変換し、S3に保存。配信はCloudFront経由で行う。
+
+| | サイズ |
+|---|---|
+| 元画像（PNG） | 143.2 KB |
+| WebP変換後 | 55.2 KB（61.5% 削減） |
+
+### 構成
+- 画像処理: `intervention/image` v3（GDドライバー）
+- `docker/php/Dockerfile`: GDを `--with-webp --with-jpeg --with-freetype` でビルドし、WebP変換に対応
+- S3バケット `week11-uploads-omitomo2026`（東京リージョン）は **パブリックアクセスをブロックしたまま**、CloudFrontの Origin Access Control（OAC）経由でのみ読み取りを許可
+- CloudFront: `https://d1c426d1fmvi3n.cloudfront.net`（WAFは料金がかかるため無効）
+- Laravel: `.env` の `AWS_URL` をCloudFrontのドメインにし、`Storage::disk('s3')->url()` がCloudFrontのURLを返すようにした
+- 保存時に `Cache-Control: public, max-age=31536000, immutable` を付与（ファイル名はUUIDで、同じ名前が別の画像を指すことはないため長期キャッシュが安全）
+- IAMユーザー `techmeets-app-s3` を作成し、このバケットの読み書きのみを許可するインラインポリシーを付与（最小権限）
+
+### あわせて修正したこと
+- `/s3upload` がログイン不要で誰でもS3にアップロードできる状態だったため、`auth` ミドルウェアを追加
+- `deploy.yml` にアプリコンテナの再ビルド（`docker compose up -d --build app`）を追加。Dockerfileの変更が本番に反映されるようにした
+
+### 補足
+- nginxの初期設定（`client_max_body_size` 1MB）により、アップロードできる画像は現状1MBまで
