@@ -9,13 +9,13 @@
 
 | 指標 | Before | After |
 |---|---|---|
-| Performance | 97 | |
-| FCP | 2.1 s | |
-| LCP | 2.1 s | |
-| TBT | 0 ms | |
-| CLS | 0 | |
-| Speed Index | 2.1 s | |
-| TTFB | 120 ms | |
+| Performance | 97 | 97 |
+| FCP | 2.1 s | 2.1 s |
+| LCP | 2.1 s | 2.1 s |
+| TBT | 0 ms | 0 ms |
+| CLS | 0 | 0 |
+| Speed Index | 2.1 s | 2.1 s |
+| TTFB | 120 ms | 80 ms |
 
 ## Before時点の主な指摘
 - Use efficient cache lifetimes（推定144 KiB削減）: 静的ファイルにキャッシュ期限が未設定
@@ -96,3 +96,15 @@ Viteのビルド成果物（`public/build/`）はファイル名にハッシュ�
 
 - 確認: ホスト側のファイルには設定があるが、コンテナ内のファイルには無かった
 - 対応: `docker compose restart nginx` でマウントし直して反映。`deploy.yml` も reload から restart に変更
+
+## Lighthouse After の考察
+
+スコアは 97 → 97 で、FCP・LCPも変化しなかった。これは以下の理由による。
+
+- Lighthouseは毎回キャッシュを空にした状態（初回訪問）で計測するため、`Cache-Control` による改善（2回目以降の訪問で静的ファイルを再取得しない）はスコアに反映されない。本番でヘッダーが付与されていることは curl で確認した（`cache-control: public, max-age=31536000, immutable`）
+- 本番は投稿0件のため、N+1解消・インデックス・キャッシュといったDB側の改善は本番ページの計測値には表れない。これらはローカル（投稿3000件）で個別に計測した（上記の各セクション参照）
+- TTFBは 120 ms → 80 ms。サーバー応答は元から目標（800 ms以内）を大きく下回っている
+
+### 今後の改善候補
+- FCP 2.1 s の大半は、Mobile（低速回線シミュレーション）でのCSS・外部フォントの読み込み待ち。フォント（fonts.bunny.net）をセルフホストする、`preconnect` を見直すなどで改善が見込める
+- 練習課題3（WebP変換・CloudFront配信）は別PRで対応予定
