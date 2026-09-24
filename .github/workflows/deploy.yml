@@ -29,4 +29,4 @@ jobs:
             docker compose exec -T app php artisan route:cache
             docker compose exec -T app php artisan view:cache
             docker compose exec -T nginx nginx -t
-            docker compose exec -T nginx nginx -s reload
+            docker compose restart nginx
