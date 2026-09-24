@@ -89,3 +89,10 @@ Viteのビルド成果物（`public/build/`）はファイル名にハッシュ�
 
 - `docker/nginx/default.conf`: `location /build/` にキャッシュヘッダーを追加
 - `.github/workflows/deploy.yml`: デプロイ時に `nginx -t`（設定チェック）と `nginx -s reload` を実行するよう追加
+
+### 本番反映時のトラブルと対応
+
+本番デプロイ後、キャッシュヘッダーが付かなかった。原因は、`docker-compose.yml` で nginx の設定ファイルを **ファイル単体でバインドマウント** していたこと。`git pull` はファイルを上書きせず新しいファイルに置き換えるため、コンテナ側は古いファイルを参照し続け、`nginx -s reload` しても設定が変わらなかった。
+
+- 確認: ホスト側のファイルには設定があるが、コンテナ内のファイルには無かった
+- 対応: `docker compose restart nginx` でマウントし直して反映。`deploy.yml` も reload から restart に変更
