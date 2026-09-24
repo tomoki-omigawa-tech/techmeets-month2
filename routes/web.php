@@ -25,8 +25,8 @@ Route::middleware('auth')->group(function () {
 // 投稿：一覧・詳細は誰でも閲覧可能
 Route::resource('posts', PostController::class)->only(['index', 'show']);
 require __DIR__.'/auth.php';
-Route::get('/s3upload', [S3UploadController::class, 'index'])->name('s3upload.index');
-Route::post('/s3upload', [S3UploadController::class, 'store'])->name('s3upload.store');
+Route::get('/s3upload', [S3UploadController::class, 'index'])->middleware('auth')->name('s3upload.index');
+Route::post('/s3upload', [S3UploadController::class, 'store'])->middleware('auth')->name('s3upload.store');
 
 // Stripe決済
 Route::get('/checkout', [CheckoutController::class, 'create'])->name('checkout.create');

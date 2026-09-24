@@ -11,6 +11,9 @@
     @if (session('url'))
         <div style="margin-bottom: 20px;">
             <p><strong>アップロード成功！</strong></p>
+            @if (session('conversion'))
+                <p style="color: #059669;">{{ session('conversion') }}</p>
+            @endif
             <img src="{{ session('url') }}" alt="uploaded image" style="max-width: 100%; border-radius: 8px;">
             <p style="font-size: 12px; word-break: break-all; color: #666;">{{ session('url') }}</p>
         </div>
