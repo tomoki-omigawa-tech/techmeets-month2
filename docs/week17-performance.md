@@ -81,3 +81,11 @@
 - `predis/predis` を追加（PHPイメージに phpredis 拡張が無いため）
 - ローカル `.env`: `CACHE_STORE=redis` / `REDIS_CLIENT=predis` / `REDIS_HOST=redis`
 - テストは `phpunit.xml` の `CACHE_STORE=array` のまま影響なし
+
+## 静的ファイルのHTTPキャッシュ
+
+Lighthouseの「Use efficient cache lifetimes」（推定144 KiB）への対策。
+Viteのビルド成果物（`public/build/`）はファイル名にハッシュが付き、内容が変わればファイル名も変わるため、`Cache-Control: public, max-age=31536000, immutable` で1年間ブラウザにキャッシュさせても古いファイルが使われる心配がない。
+
+- `docker/nginx/default.conf`: `location /build/` にキャッシュヘッダーを追加
+- `.github/workflows/deploy.yml`: デプロイ時に `nginx -t`（設定チェック）と `nginx -s reload` を実行するよう追加
