@@ -4,13 +4,20 @@ namespace App\Repositories;
 
 use App\Models\Post;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Cache;
 
 class PostRepository
 {
-    // 一覧取得（カテゴリ込み・ページネーション）
+    // 一覧取得（カテゴリ・投稿者込み・ページネーション・10分キャッシュ）
     public function paginate(int $perPage = 10): LengthAwarePaginator
     {
-        return Post::with('category')->latest()->paginate($perPage);
+        $page = request()->integer('page', 1);
+        $version = Cache::get(Post::INDEX_CACHE_VERSION_KEY, 1);
+        $key = "posts.index.v{$version}.page{$page}.per{$perPage}";
+
+        return Cache::remember($key, now()->addMinutes(10), function () use ($perPage) {
+            return Post::with(['category', 'user:id,name'])->latest()->paginate($perPage);
+        });
     }
 
     // 新規作成
