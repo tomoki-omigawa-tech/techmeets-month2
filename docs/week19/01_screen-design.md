@@ -1,7 +1,7 @@
 # 画面設計書
 
 ワイヤーフレーム：Figma（`wireframes/` に書き出し画像を保存）
-講師画面はスマートフォン（375 × 812）、スタッフ画面はPC（1440 × 1024）を基準とする。
+講師画面はスマートフォン（393 × 852）、スタッフ画面はPC（1440 × 1024）を基準とする。
 
 ## 画面一覧
 | ID | 画面名 | ロール | 優先度 | Figma |
@@ -99,3 +99,26 @@ flowchart TD
 - [x] ローディング：応募・確定ボタンは押下後に無効化して二重送信を防ぐ
 - [x] レスポンシブ：講師画面はスマホ基準、スタッフ画面はPC基準
 - [x] アクセシビリティ：状態は色だけでなく文字のバッジでも表示
+
+## ワイヤーフレーム（Figma）
+
+### S-01 ログイン
+![S-01](wireframes/S-01_login.png)
+
+### T-01 講師ダッシュボード
+![T-01](wireframes/T-01_dashboard.png)
+
+### T-02 全体シフト表
+![T-02](wireframes/T-02_all-shifts.png)
+
+### T-03 代講依頼作成
+![T-03](wireframes/T-03_request-form.png)
+
+### T-04 募集中の代講一覧
+![T-04](wireframes/T-04_open-requests.png)
+
+### T-05 代講依頼詳細
+![T-05](wireframes/T-05_request-detail.png)
+
+### A-03 代講依頼の状況一覧（PC）
+![A-03](wireframes/A-03_staff-requests.png)
