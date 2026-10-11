@@ -1,3 +1,29 @@
+# techmeets Month 2（Week 5〜9）＋ ブログアプリの開発リポジトリ
+
+techmeets の Month 2 の課題と、Week 7 から作り続けている Laravel ブログアプリの開発リポジトリです。
+本番環境（https://tomoki-omigawa.com ）へは、このリポジトリの main から GitHub Actions で自動デプロイしています。
+
+## Month 2（Week 5〜9）
+| Week | テーマ | 内容 | 場所 |
+|---|---|---|---|
+| Week 5 | RESTful API 理解＋GitHub 実践 | Issue → ブランチ → PR → マージの流れ、Postman で HTTP メソッドの確認 | [week5-practice](https://github.com/tomoki-omigawa-tech/week5-practice) |
+| Week 6 | Docker 基礎＋Laravel 環境構築 | nginx + PHP-FPM + MySQL + phpMyAdmin の Docker 環境で Laravel を構築 | このリポジトリ [PR #1](../../pull/1) |
+| Week 7 | Laravel 基礎＋MVC モデル理解 | ブログシステム（CRUD・カテゴリー・ページネーション・バリデーション） | このリポジトリ [PR #2](../../pull/2) |
+| Week 8 | Laravel 認証＋セキュリティ | Breeze による認証・認可（会員制ブログ）／PHP で作る認証付き掲示板 | このリポジトリ [PR #3](../../pull/3)／[techmeets-month1 の week8-bbs](https://github.com/tomoki-omigawa-tech/techmeets-month1/tree/main/week8-bbs) |
+| Week 9 | 設計・責務分離＋DB 設計の深化 | Repository / Service パターンでのリファクタリング、Fat Controller 比較ドキュメント、タスク管理アプリ（練習課題1） | このリポジトリ [PR #4](../../pull/4)・[PR #5](../../pull/5)／[techmeets-task-manager](https://github.com/tomoki-omigawa-tech/techmeets-task-manager) |
+
+## Month 3 以降
+Week 10 以降もこのリポジトリで開発を続けたため、各 Month の時点のものを別リポジトリに整理しています。
+| Month | 週 | リポジトリ |
+|---|---|---|
+| Month 1 | Week 1〜4 | [techmeets-month1](https://github.com/tomoki-omigawa-tech/techmeets-month1) |
+| Month 3 | Week 10〜13（React 連携・AWS・Stripe / SendGrid・独自ドメイン / HTTPS） | [techmeets-month3](https://github.com/tomoki-omigawa-tech/techmeets-month3) |
+| Month 4 | Week 14〜17（テスト・CI/CD・Docker 応用・パフォーマンス最適化） | [techmeets-month4](https://github.com/tomoki-omigawa-tech/techmeets-month4) |
+| Month 5 | Week 18〜21（要件定義・設計・IT ビジネス・総合演習準備） | [techmeets-month5](https://github.com/tomoki-omigawa-tech/techmeets-month5) |
+| 総合プロジェクト | Week 21〜24 | [daikolink](https://github.com/tomoki-omigawa-tech/daikolink) |
+
+---
+
 # ブログシステム（Week7〜8 課題）
 
 LaravelのMVCパターンで作成したブログシステムです。投稿のCRUD機能、カテゴリー分類、ページネーション、バリデーションに加え、Week8でLaravel Breezeによる認証・認可機能を実装しました。
