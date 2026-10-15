@@ -1,6 +1,6 @@
 # カンバンボード（GitHub Projects）
 
-ボード：GitHub Projects「DaikoLink」（このリポジトリの Issue を登録）
+ボード：[GitHub Projects「DaikoLink」](https://github.com/users/tomoki-omigawa-tech/projects/1)（このリポジトリの Issue を登録）
 
 ## なぜ GitHub Projects にしたか
 - Issue・PR・コミットと紐づけられ、PR をマージすると自動で Done に移せる
